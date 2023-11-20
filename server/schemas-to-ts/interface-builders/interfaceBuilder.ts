@@ -37,6 +37,22 @@ export abstract class InterfaceBuilder {
             interfacesFileContent += interfacesText;
         }
 
+        let interfaceContentTypes = `export interface ContentTypes {\n`;
+        for (let schema of schemas) {
+            interfaceContentTypes += `  ${schema.pascalName}: ${schema.pascalName};\n`;
+        }
+
+        // add user, media and media format
+        interfaceContentTypes += `  User: User;\n`;
+        interfaceContentTypes += `  Media: Media;\n`;
+        interfaceContentTypes += `  MediaFormat: MediaFormat;\n`;
+
+        interfaceContentTypes += `};\n`;
+
+        interfacesFileContent += interfaceContentTypes;
+
+        interfacesFileContent += `export type ContentType<T extends keyof ContentTypes> = ContentTypes[T];\n`;
+
         return interfacesFileContent;
     }
 
@@ -46,8 +62,8 @@ export abstract class InterfaceBuilder {
             commonSchemas,
             commonFolderModelsPath,
             'Payload',
-            `export interface Payload<T> {
-      data: T;
+            `export interface Payload<T extends keyof ContentTypes> {
+      data: ContentType<T>[];
       meta: {
         pagination?: {
           page: number;
@@ -82,17 +98,16 @@ export abstract class InterfaceBuilder {
             commonFolderModelsPath,
             'MediaFormat',
             `export interface MediaFormat {
-      name: string;
-      hash: string;
-      ext: string;
-      mime: string;
-      width: number;
-      height: number;
-      size: number;
-      path: string;
-      url: string;
-    }
-    `,
+                name: string;
+                hash: string;
+                ext: string;
+                mime: string;
+                width: number;
+                height: number;
+                size: number;
+                path: string;
+                url: string;
+            }`,
         );
 
         this.addCommonSchema(
