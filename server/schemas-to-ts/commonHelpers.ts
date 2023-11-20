@@ -1,7 +1,7 @@
-import prettier from 'prettier';
+import prettier from "prettier";
 import { PluginConfig } from "../models/pluginConfig";
-import { SchemaInfo } from '../models/schemaInfo';
-import { SchemaSource } from '../models/schemaSource';
+import { SchemaInfo } from "../models/schemaInfo";
+import { SchemaSource } from "../models/schemaSource";
 
 export class CommonHelpers {
   private verboseLogs: boolean;
@@ -16,31 +16,40 @@ export class CommonHelpers {
     }
   }
 
-  public getPrettierOptions(): prettier.Options | undefined {
+  public async getPrettierOptions(): Promise<prettier.Options | undefined> {
     if (!this.config.usePrettierIfAvailable) {
       return undefined;
     }
 
-    const prettierConfigFile = prettier.resolveConfigFile.sync(strapi.dirs.app.root);
+    const prettierConfigFile = await prettier.resolveConfigFile(
+      strapi.dirs.app.root
+    );
     if (prettierConfigFile !== null) {
-      return prettier.resolveConfig.sync(prettierConfigFile, { editorconfig: true }) as prettier.Options;
+      let prettierOptions = (await prettier.resolveConfig(prettierConfigFile, {
+        editorconfig: true,
+      })) as prettier.Options;
+      return prettierOptions;
     }
   }
 
-  public getFileNameFromSchema(schemaInfo: SchemaInfo, withExtension: boolean): string {
-    let fileName: string = schemaInfo.source === SchemaSource.Api
-      ? schemaInfo.schema.info.singularName
-      : schemaInfo.pascalName;
+  public getFileNameFromSchema(
+    schemaInfo: SchemaInfo,
+    withExtension: boolean
+  ): string {
+    let fileName: string =
+      schemaInfo.source === SchemaSource.Api
+        ? schemaInfo.schema.info.singularName
+        : schemaInfo.pascalName;
 
     if (!!withExtension) {
-      fileName += '.ts';
+      fileName += ".ts";
     }
 
     return fileName;
   }
 
   public static isWindows(): boolean {
-    return process.platform === 'win32';
+    return process.platform === "win32";
   }
 
   public static capitalizeFirstLetter(text: string): string {

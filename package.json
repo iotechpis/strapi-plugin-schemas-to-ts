@@ -1,5 +1,5 @@
 {
-  "name": "strapi-plugin-schemas-to-ts",
+  "name": "@iotechpis/strapi-plugin-schemas-to-ts",
   "version": "1.1.10",
   "description": "A Strapi plugin that automatically generates Typescript interfaces for Strapi entities and components.",
   "strapi": {
@@ -17,16 +17,16 @@
     "fullrebuild": "yarn fullclean && yarn install && yarn build"
   },
   "dependencies": {
-    "@strapi/helper-plugin": "^4.12.1",
+    "@strapi/helper-plugin": "^4.15.4",
     "pascal-case": "^3.1.2",
-    "prettier": "^2.7.2"
+    "prettier": "^3.1.0"
   },
   "devDependencies": {
-    "@strapi/strapi": "^4.12.1",
-    "@strapi/typescript-utils": "^4.12.1",
-    "@types/prettier": "^2.7.2",
+    "@strapi/strapi": "^4.15.4",
+    "@strapi/typescript-utils": "^4.15.4",
+"@types/prettier": "^2.7.3",
     "rimraf": "^5.0.5",
-    "typescript": "5.1.6"
+    "typescript": "5.3.2"
   },
   "peerDependencies": {},
   "engines": {
