@@ -4,8 +4,8 @@ import destroy from './destroy';
 import register from './register';
 
 export default {
-  register,
-  bootstrap,
-  destroy,
-  config,
+    register,
+    bootstrap,
+    destroy,
+    config,
 };

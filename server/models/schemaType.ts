@@ -1,6 +1,6 @@
 export enum SchemaType {
-  Standard,
-  Plain,
-  NoRelations,
-  AdminPanelLifeCycle
+    Standard,
+    Plain,
+    NoRelations,
+    AdminPanelLifeCycle,
 }

@@ -1,0 +1,19 @@
+.cache
+build
+**/node_modules/**
+dist
+.docusaurus
+.cache-loader
+
+# Misc
+.DS_Store
+.env
+.env.*
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ignore md files
+*.md
+*.mdx

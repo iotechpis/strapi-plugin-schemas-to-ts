@@ -5,7 +5,7 @@ import { Converter } from './schemas-to-ts/converter';
 export const pluginName: string = 'schemas-to-ts';
 
 export default ({ strapi }: { strapi: Strapi }) => {
-  const config: PluginConfig = strapi.config.get(`plugin.${pluginName}`);
-  const converter = new Converter(strapi, config);
-  converter.SchemasToTs();
+    const config: PluginConfig = strapi.config.get(`plugin.${pluginName}`);
+    const converter = new Converter(strapi, config);
+    converter.SchemasToTs();
 };

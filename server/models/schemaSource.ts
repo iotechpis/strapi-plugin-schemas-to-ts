@@ -1,5 +1,5 @@
 export enum SchemaSource {
-  Component,
-  Api,
-  Common
+    Component,
+    Api,
+    Common,
 }
