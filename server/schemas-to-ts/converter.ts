@@ -143,7 +143,7 @@ export class Converter {
             source: schemaSource,
             interfaceAsText: '',
             plainInterfaceAsText: '',
-            noRelationsInterfaceAsText: '',
+                        noRelationsInterfaceAsText: '',
             adminPanelLifeCycleRelationsInterfaceAsText: '',
             dependencies: [],
             enums: [],

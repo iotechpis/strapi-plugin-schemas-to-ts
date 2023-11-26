@@ -40,7 +40,7 @@ export abstract class InterfaceBuilder {
         let interfaceContentTypes = `export interface ContentTypes {\n`;
         for (let schema of schemas) {
             interfaceContentTypes += `  ${schema.pascalName}: ${schema.pascalName};\n`;
-        }
+                    }
 
         // add user, media and media format
         interfaceContentTypes += `  User: User;\n`;
@@ -58,23 +58,6 @@ export abstract class InterfaceBuilder {
 
     public generateCommonSchemas(commonFolderModelsPath: string): SchemaInfo[] {
         const commonSchemas: SchemaInfo[] = [];
-        this.addCommonSchema(
-            commonSchemas,
-            commonFolderModelsPath,
-            'Payload',
-            `export interface Payload<T extends keyof ContentTypes> {
-      data: ContentType<T>[];
-      meta: {
-        pagination?: {
-          page: number;
-          pageSize: number;
-          pageCount: number;
-          total: number;
-        }
-      };
-    }
-    `,
-        );
 
         this.addCommonSchema(
             commonSchemas,
@@ -136,6 +119,36 @@ export abstract class InterfaceBuilder {
     `,
         );
 
+        this.addCommonSchema(
+            commonSchemas,
+            commonFolderModelsPath,
+            'APIResponseMany',
+            `
+            export interface APIResponseMany<T extends keyof ContentTypes> {
+                data: ContentType<T>[];
+                meta: {
+                    pagination: {
+                        page: number;
+                        pageSize: number;
+                        pageCount: number;
+                        total: number;
+                    };
+                };
+            }
+            `,
+        );
+
+        this.addCommonSchema(
+            commonSchemas,
+            commonFolderModelsPath,
+            'APIResponseSingle',
+            `
+            export interface APIResponseSingle<T extends keyof ContentTypes> {
+                data: ContentType<T>;
+            }
+            `,
+        );
+
         return commonSchemas;
     }
 
@@ -181,14 +194,14 @@ export abstract class InterfaceBuilder {
 
         let interfaceText = `export interface ${interfaceName} {\n`;
         if (schemaInfo.source === SchemaSource.Api) {
-            interfaceText += `  id: number;\n`;
+            interfaceText += `  id?: number;\n`;
         }
 
         let indentation = '  ';
 
         if (schemaInfo.source !== SchemaSource.Component) {
-            interfaceText += `${indentation}createdAt: Date;`;
-            interfaceText += `${indentation}updatedAt: Date;`;
+            interfaceText += `${indentation}createdAt?: Date;`;
+            interfaceText += `${indentation}updatedAt?: Date;`;
             interfaceText += `${indentation}publishedAt?: Date;`;
         }
 
@@ -211,9 +224,9 @@ export abstract class InterfaceBuilder {
 
                 interfaceDependencies.push(propertyType);
                 const isArray = attributeValue.relation.endsWith('ToMany');
-                const bracketsIfArray = isArray ? '[]' : '';
+                const bracketsIfArray = isArray ? '[] | number[]' : ' | number | null';
 
-                propertyDefinition = `${indentation}${propertyName}: ${propertyType}${bracketsIfArray};\n`;
+                propertyDefinition = `${indentation}${propertyName}${this.isOptional(attributeValue) ? '' : '?'}: ${propertyType}${bracketsIfArray};\n`;
             }
 
             // -------------------------------------------------
@@ -249,8 +262,8 @@ export abstract class InterfaceBuilder {
                 propertyType = 'Media';
                 interfaceDependencies.push(propertyType);
 
-                const bracketsIfArray = attributeValue.multiple ? '[]' : '';
-                propertyDefinition = `${indentation}${propertyName}: ${propertyType}${bracketsIfArray};\n`;
+                const bracketsIfArray = attributeValue.multiple ? '[] | number[]' : ' | number | null';
+                propertyDefinition = `${indentation}${propertyName}${this.isOptional(attributeValue) ? '' : '?'}: ${propertyType}${bracketsIfArray};\n`;
             }
 
             // -------------------------------------------------

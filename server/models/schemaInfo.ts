@@ -10,7 +10,7 @@ export interface SchemaInfo {
     source: SchemaSource;
     interfaceAsText: string;
     plainInterfaceAsText: string;
-    noRelationsInterfaceAsText: string;
+        noRelationsInterfaceAsText: string;
     adminPanelLifeCycleRelationsInterfaceAsText: string;
     dependencies: string[];
     enums: string[];
@@ -26,7 +26,7 @@ const defaultSchemaInfo: SchemaInfo = {
     source: SchemaSource.Common,
     interfaceAsText: '',
     plainInterfaceAsText: '',
-    noRelationsInterfaceAsText: '',
+        noRelationsInterfaceAsText: '',
     adminPanelLifeCycleRelationsInterfaceAsText: '',
     dependencies: [],
     enums: [],
