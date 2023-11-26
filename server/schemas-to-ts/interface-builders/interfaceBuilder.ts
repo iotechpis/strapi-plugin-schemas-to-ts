@@ -40,10 +40,9 @@ export abstract class InterfaceBuilder {
         let interfaceContentTypes = `export interface ContentTypes {\n`;
         for (let schema of schemas) {
             interfaceContentTypes += `  ${schema.pascalName}: ${schema.pascalName};\n`;
-                    }
+        }
 
         // add user, media and media format
-        interfaceContentTypes += `  User: User;\n`;
         interfaceContentTypes += `  Media: Media;\n`;
         interfaceContentTypes += `  MediaFormat: MediaFormat;\n`;
 
@@ -53,28 +52,46 @@ export abstract class InterfaceBuilder {
 
         interfacesFileContent += `export type ContentType<T extends keyof ContentTypes> = ContentTypes[T];\n`;
 
+        interfacesFileContent += `
+        export interface APIResponseMany<T extends keyof ContentTypes> {
+            data: ContentType<T>[];
+            meta: {
+                pagination: {
+                    page: number;
+                    pageSize: number;
+                    pageCount: number;
+                    total: number;
+                };
+            };
+        }
+        `;
+
+        interfacesFileContent += `
+        export interface APIResponseSingle<T extends keyof ContentTypes> {
+            data: ContentType<T>;
+        }
+        `;
+
+        interfacesFileContent +=
+            `
+        export interface APIRequestParams<T extends keyof ContentTypes> {
+            populate?: any;
+            fields?: (keyof ContentType<T>)[];
+            locale?: string | string[];
+            filters?: any;` +
+            'sort?: `${keyof ContentType<T>}:asc` | `${keyof ContentType<T>}:desc` | (`${keyof ContentType<T>}:asc` | `${keyof ContentType<T>}:desc`)[];' +
+            `pagination?: {
+                page?: number;
+                pageSize?: number;
+            };
+        }
+        `;
+
         return interfacesFileContent;
     }
 
     public generateCommonSchemas(commonFolderModelsPath: string): SchemaInfo[] {
         const commonSchemas: SchemaInfo[] = [];
-
-        this.addCommonSchema(
-            commonSchemas,
-            commonFolderModelsPath,
-            'User',
-            `export interface User {
-      id: number;
-      username: string;
-      email: string;
-      provider: string;
-      confirmed: boolean;
-      blocked: boolean;
-      createdAt: Date;
-      updatedAt: Date;
-    }
-    `,
-        );
 
         this.addCommonSchema(
             commonSchemas,
@@ -119,36 +136,6 @@ export abstract class InterfaceBuilder {
     `,
         );
 
-        this.addCommonSchema(
-            commonSchemas,
-            commonFolderModelsPath,
-            'APIResponseMany',
-            `
-            export interface APIResponseMany<T extends keyof ContentTypes> {
-                data: ContentType<T>[];
-                meta: {
-                    pagination: {
-                        page: number;
-                        pageSize: number;
-                        pageCount: number;
-                        total: number;
-                    };
-                };
-            }
-            `,
-        );
-
-        this.addCommonSchema(
-            commonSchemas,
-            commonFolderModelsPath,
-            'APIResponseSingle',
-            `
-            export interface APIResponseSingle<T extends keyof ContentTypes> {
-                data: ContentType<T>;
-            }
-            `,
-        );
-
         return commonSchemas;
     }
 
@@ -186,6 +173,10 @@ export abstract class InterfaceBuilder {
         return attributeValue.required !== true;
     }
 
+    private hasDefaultValue(attributeValue): boolean {
+        return attributeValue.default !== undefined;
+    }
+
     private buildInterfaceText(schemaInfo: SchemaInfo, allSchemas: SchemaInfo[]): InterfaceBuilderResult {
         const interfaceName: string = this.getInterfaceName(schemaInfo);
 
@@ -220,7 +211,7 @@ export abstract class InterfaceBuilder {
             // Relation
             // -------------------------------------------------
             if (attributeValue.type === 'relation') {
-                propertyType = attributeValue.target.includes('::user') ? 'User' : `${pascalCase(attributeValue.target.split('.')[1])}`;
+                propertyType = `${pascalCase(attributeValue.target.split('.')[1])}`;
 
                 interfaceDependencies.push(propertyType);
                 const isArray = attributeValue.relation.endsWith('ToMany');
@@ -337,7 +328,7 @@ export abstract class InterfaceBuilder {
             // Number
             // -------------------------------------------------
             else if (attributeValue.type === 'integer' || attributeValue.type === 'biginteger' || attributeValue.type === 'decimal' || attributeValue.type === 'float') {
-                propertyType = 'number';
+                propertyType = `number${!this.hasDefaultValue(attributeValue) ? ' | null' : ''}`;
                 propertyDefinition = `${indentation}${propertyName}: ${propertyType};\n`;
             }
 
@@ -345,7 +336,7 @@ export abstract class InterfaceBuilder {
             // Date
             // -------------------------------------------------
             else if (attributeValue.type === 'date' || attributeValue.type === 'datetime' || attributeValue.type === 'time') {
-                propertyType = 'Date';
+                propertyType = `Date${!this.hasDefaultValue(attributeValue) ? ' | null' : ''}`;
                 propertyDefinition = `${indentation}${propertyName}: ${propertyType};\n`;
             }
 

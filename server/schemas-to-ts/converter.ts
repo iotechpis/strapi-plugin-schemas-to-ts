@@ -43,10 +43,11 @@ export class Converter {
 
         const commonSchemas: SchemaInfo[] = this.interfaceBuilder.generateCommonSchemas(this.commonFolderModelsPath);
         const apiSchemas: SchemaInfo[] = this.getSchemas(strapi.dirs.app.api, SchemaSource.Api);
+        const extensionSchemas: SchemaInfo[] = this.getSchemas(strapi.dirs.app.extensions, SchemaSource.Api);
         const componentSchemas: SchemaInfo[] = this.getSchemas(strapi.dirs.app.components, SchemaSource.Component, apiSchemas);
         this.adjustComponentsWhoseNamesWouldCollide(componentSchemas);
 
-        const schemas: SchemaInfo[] = [...apiSchemas, ...componentSchemas, ...commonSchemas];
+        const schemas: SchemaInfo[] = [...apiSchemas, ...extensionSchemas, ...componentSchemas, ...commonSchemas];
         for (const schema of schemas.filter((x) => x.source !== SchemaSource.Common)) {
             this.interfaceBuilder.convertSchemaToInterfaces(schema, schemas);
         }
