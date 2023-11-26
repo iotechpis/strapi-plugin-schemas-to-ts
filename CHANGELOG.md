@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.0.2] - 2023-11-26
+### Added
+ - Added the common schemas `APIRequestParams` to the generated interfaces.
+ - Added the extension schemas to the generated interfaces.
+
+
+## [1.0.1] - 2023-11-26
+### Added
+ - Added the common schemas `APIResponseMany` and `APIResponseSingle` to the generated interfaces.
+
+### Changed
+ - Relations are now generated with "or number or null"
+ - id, created_at, updated_at and published_at are now generated as optional properties
+
+## [1.0.0] - 2023-11-20
+### Changed
+- Only one type per content type is now generated in a single file called `contentTypes.d.ts` in the root folder of the Strapi project.
+
+--- Fork
+
 ## [1.1.10] - 2023-07-27
 ### Fixed
 - [Commit 12ca71eb11d50d9ae220004a320f9d87f8a2a5ae](https://github.com/mancku/strapi-plugin-schemas-to-ts/commit/12ca71eb11d50d9ae220004a320f9d87f8a2a5ae)
