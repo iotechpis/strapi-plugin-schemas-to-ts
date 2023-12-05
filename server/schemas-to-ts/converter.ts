@@ -1,7 +1,6 @@
 import { Strapi } from '@strapi/strapi';
-import fs from 'fs';
+import { cloneDeep } from 'lodash';
 import { pascalCase } from 'pascal-case';
-import path from 'path';
 import prettier from 'prettier';
 import { PluginConfig } from '../models/pluginConfig';
 import { SchemaInfo } from '../models/schemaInfo';
@@ -20,7 +19,7 @@ export class Converter {
 
     constructor(strapi: Strapi, config: PluginConfig) {
         this.config = config;
-        this.contentTypes = strapi.contentTypes;
+        this.contentTypes = cloneDeep(strapi.contentTypes);
         this.commonHelpers = new CommonHelpers(config);
         this.interfaceBuilder = new InterfaceBuilder(config);
         this.commonHelpers.printVerboseLog(`${pluginName} configuration`, this.config);
