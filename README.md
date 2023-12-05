@@ -47,8 +47,9 @@ export default {
       config: {
         acceptedNodeEnvs: ["development"],
         verboseLogs: false,
-        alwaysAddEnumSuffix: false
+        alwaysAddEnumSuffix: false,
         usePrettierIfAvailable: true,
+        contentTypesToIgnore: ['plugin::upload.folder', 'plugin::i18n.locale']
       }
     },
   // ...
@@ -57,8 +58,9 @@ export default {
 
 - acceptedNodeEnvs ➡️ An array with all the environments (process.env.NODE_ENV) in which the interfaces will be generated.
 - verboseLogs ➡️ Set to true to get additional console logs during the execution of the plugin.
-- alwaysAddEnumSuffix ➡️ Set to true will generate all enums with an `Enum` suffix. For instance: `CarType` would become `CarTypeEnum`.
+- alwaysAddEnumSuffix ➡️ Set to true will generate all enums with a suffix that is the content type name. For instance: `CarType` in the `Car` content type would become `CarType_Car`.
 - usePrettierIfAvailable ➡️ Set to true will use prettier to format the generated interfaces. If prettier is not available, the interfaces will be generated without formatting.
+- contentTypesToIgnore ➡️ An array with all the content types that should be ignored by the plugin. The content types can be the UID of the content type or a regex that matches the UID of the content type.
 
 ## Interfaces sources
 There are 3 different interface sources: API, Extensions, Component & Common.
