@@ -15,7 +15,8 @@
         "rebuild": "yarn clean && yarn build",
         "fullclean": "rimraf dist/ node_modules/",
         "fullrebuild": "yarn fullclean && yarn install && yarn build",
-        "prettier": "prettier ./ -w --config .prettierrc.js"
+        "prettier": "prettier ./ -w --config .prettierrc.js",
+        "prepare": "yarn build && yarn prettier"
     },
     "dependencies": {
         "@strapi/helper-plugin": "^4.15.4",

@@ -159,11 +159,10 @@ export class InterfaceBuilder {
             let propertyType: string;
             let propertyDefinition: string;
 
-            if(schemaInfo.schema.info.singularName == 'media' && originalPropertyName == 'formats') {
+            if (schemaInfo.schema.info.singularName == 'media' && originalPropertyName == 'formats') {
                 interfaceText += `formats: { thumbnail: MediaFormat; small: MediaFormat; medium: MediaFormat; large: MediaFormat };`;
                 continue;
             }
-
 
             // -------------------------------------------------
             // Relation
