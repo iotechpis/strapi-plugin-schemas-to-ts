@@ -3,9 +3,9 @@ import { pluginName } from '../register';
 
 const config: PluginConfig = {
     acceptedNodeEnvs: ['development'],
-    commonInterfacesFolderName: pluginName,
     verboseLogs: false,
     alwaysAddEnumSuffix: false,
+    contentTypesToIgnore: ['plugin::upload.folder', 'plugin::i18n.locale'],
     alwaysAddComponentSuffix: false,
     usePrettierIfAvailable: true,
 };

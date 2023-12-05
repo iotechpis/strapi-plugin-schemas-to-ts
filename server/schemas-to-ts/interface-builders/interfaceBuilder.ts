@@ -2,22 +2,30 @@ import { pascalCase } from 'pascal-case';
 import path from 'path';
 import { InterfaceBuilderResult } from '../../models/interfaceBuilderResult';
 import { PluginConfig } from '../../models/pluginConfig';
-import defaultSchemaInfo, { SchemaInfo } from '../../models/schemaInfo';
+import { SchemaInfo } from '../../models/schemaInfo';
 import { SchemaSource } from '../../models/schemaSource';
-import { pluginName } from '../../register';
 import { CommonHelpers } from '../commonHelpers';
-import { FileHelpers } from '../fileHelpers';
 
-export abstract class InterfaceBuilder {
-    constructor(
-        private commonHelpers: CommonHelpers,
-        private config: PluginConfig,
-    ) {}
+export class InterfaceBuilder {
+    constructor(private config: PluginConfig) {}
 
     public convertSchemaToInterfaces(schema: SchemaInfo, schemas: SchemaInfo[]) {
         this.convertToInterface(schema, schemas);
 
         schema.enums = [...new Set(schema.enums)];
+    }
+
+    public shouldSkipSchema(uid: string): boolean {
+        if (uid.includes('admin::') || this.config.contentTypesToIgnore.includes(uid)) return true;
+
+        for (const r of this.config.contentTypesToIgnore) {
+            try {
+                if (new RegExp(r).test(uid)) {
+                    return true;
+                }
+            } catch (error) {}
+        }
+        return false;
     }
 
     public async buildInterfacesFileContent(schemas: SchemaInfo[]) {
@@ -37,14 +45,24 @@ export abstract class InterfaceBuilder {
             interfacesFileContent += interfacesText;
         }
 
+        interfacesFileContent += `
+        export interface MediaFormat {
+            name: string;
+            hash: string;
+            ext: string;
+            mime: string;
+            width: number;
+            height: number;
+            size: number;
+            path: string;
+            url: string;
+        }
+        `;
+
         let interfaceContentTypes = `export interface ContentTypes {\n`;
         for (let schema of schemas) {
             interfaceContentTypes += `  ${schema.pascalName}: ${schema.pascalName};\n`;
         }
-
-        // add user, media and media format
-        interfaceContentTypes += `  Media: Media;\n`;
-        interfaceContentTypes += `  MediaFormat: MediaFormat;\n`;
 
         interfaceContentTypes += `};\n`;
 
@@ -79,7 +97,7 @@ export abstract class InterfaceBuilder {
             fields?: (keyof ContentType<T>)[];
             locale?: string | string[];
             filters?: any;` +
-            'sort?: `${keyof ContentType<T>}:asc` | `${keyof ContentType<T>}:desc` | (`${keyof ContentType<T>}:asc` | `${keyof ContentType<T>}:desc`)[];' +
+            'sort?: `${string & keyof ContentType<T>}:asc` | `${string & keyof ContentType<T>}:desc` | (`${string & keyof ContentType<T>}:asc` | `${string & keyof ContentType<T>}:desc`)[];' +
             `pagination?: {
                 page?: number;
                 pageSize?: number;
@@ -90,71 +108,9 @@ export abstract class InterfaceBuilder {
         return interfacesFileContent;
     }
 
-    public generateCommonSchemas(commonFolderModelsPath: string): SchemaInfo[] {
-        const commonSchemas: SchemaInfo[] = [];
-
-        this.addCommonSchema(
-            commonSchemas,
-            commonFolderModelsPath,
-            'MediaFormat',
-            `export interface MediaFormat {
-                name: string;
-                hash: string;
-                ext: string;
-                mime: string;
-                width: number;
-                height: number;
-                size: number;
-                path: string;
-                url: string;
-            }`,
-        );
-
-        this.addCommonSchema(
-            commonSchemas,
-            commonFolderModelsPath,
-            'Media',
-            `
-    export interface Media {
-      id: number;
-        name: string;
-        alternativeText: string;
-        caption: string;
-        width: number;
-        height: number;
-        formats: { thumbnail: MediaFormat; small: MediaFormat; medium: MediaFormat; large: MediaFormat; };
-        hash: string;
-        ext: string;
-        mime: string;
-        size: number;
-        url: string;
-        previewUrl: string;
-        provider: string;
-        createdAt: Date;
-        updatedAt: Date;
-    }
-    `,
-        );
-
-        return commonSchemas;
-    }
-
-    public abstract addVersionSpecificCommonSchemas(commonSchemas: SchemaInfo[], commonFolderModelsPath: string): SchemaInfo[];
-
-    protected addCommonSchema(schemas: SchemaInfo[], commonFolderModelsPath: string, pascalName: string, interfaceAsText: string, plainInterfaceAsText?: string): void {
-        const schemaInfo: SchemaInfo = Object.assign({}, defaultSchemaInfo);
-        schemaInfo.destinationFolder = commonFolderModelsPath;
-        schemaInfo.pascalName = pascalName;
-        schemaInfo.interfaceAsText = interfaceAsText;
-        if (plainInterfaceAsText) {
-            schemaInfo.plainInterfaceAsText = plainInterfaceAsText;
-        }
-        schemas.push(schemaInfo);
-    }
-
     private convertToInterface(schemaInfo: SchemaInfo, allSchemas: SchemaInfo[]) {
         if (!schemaInfo.schema) {
-            console.log(`Skipping ${schemaInfo.schemaPath}: schema is empty.`);
+            console.log(`Skipping ${schemaInfo.schemaName}: schema is empty.`);
             return null;
         }
 
@@ -190,15 +146,10 @@ export abstract class InterfaceBuilder {
 
         let indentation = '  ';
 
-        if (schemaInfo.source !== SchemaSource.Component) {
-            interfaceText += `${indentation}createdAt?: Date;`;
-            interfaceText += `${indentation}updatedAt?: Date;`;
-            interfaceText += `${indentation}publishedAt?: Date;`;
-        }
-
         const attributes = Object.entries(schemaInfo.schema.attributes);
         for (const attribute of attributes) {
             const originalPropertyName: string = attribute[0];
+
             let propertyName: string = originalPropertyName;
             const attributeValue: any = attribute[1];
             if (this.isOptional(attributeValue)) {
@@ -207,10 +158,21 @@ export abstract class InterfaceBuilder {
 
             let propertyType: string;
             let propertyDefinition: string;
+
+            if(schemaInfo.schema.info.singularName == 'media' && originalPropertyName == 'formats') {
+                interfaceText += `formats: { thumbnail: MediaFormat; small: MediaFormat; medium: MediaFormat; large: MediaFormat };`;
+                continue;
+            }
+
+
             // -------------------------------------------------
             // Relation
             // -------------------------------------------------
             if (attributeValue.type === 'relation') {
+                if (!attributeValue.target || this.shouldSkipSchema(attributeValue.target)) {
+                    continue;
+                }
+
                 propertyType = `${pascalCase(attributeValue.target.split('.')[1])}`;
 
                 interfaceDependencies.push(propertyType);
@@ -263,7 +225,7 @@ export abstract class InterfaceBuilder {
             else if (attributeValue.type === 'enumeration') {
                 let enumName: string = CommonHelpers.capitalizeFirstLetter(pascalCase(originalPropertyName));
                 if (this.config.alwaysAddEnumSuffix || originalPropertyName.toLowerCase() === schemaInfo.pascalName.toLowerCase()) {
-                    enumName += 'Enum';
+                    enumName += '_' + schemaInfo.pascalName;
                 }
                 const enumOptions: string = attributeValue.enum
                     .map((value: string) => {

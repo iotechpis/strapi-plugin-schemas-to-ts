@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.0] - 2023-12-05
+### Changed
+ - Instead of getting the schemas from the filesystem, the plugin now uses the Strapi API to get the schemas.
+
 ## [1.0.2] - 2023-11-26
 ### Added
  - Added the common schemas `APIRequestParams` to the generated interfaces.
