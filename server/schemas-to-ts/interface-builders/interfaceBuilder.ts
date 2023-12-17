@@ -223,9 +223,8 @@ export class InterfaceBuilder {
             // -------------------------------------------------
             else if (attributeValue.type === 'enumeration') {
                 let enumName: string = CommonHelpers.capitalizeFirstLetter(pascalCase(originalPropertyName));
-                if (this.config.alwaysAddEnumSuffix || originalPropertyName.toLowerCase() === schemaInfo.pascalName.toLowerCase()) {
-                    enumName += '_' + schemaInfo.pascalName;
-                }
+                enumName = schemaInfo.pascalName + '_' + enumName;
+
                 const enumOptions: string = attributeValue.enum
                     .map((value: string) => {
                         let key: string = value;
