@@ -59,16 +59,16 @@ export class InterfaceBuilder {
         }
         `;
 
-        let interfaceContentTypes = `export interface ContentTypes {\n`;
+        let interfaceContentTypes = `export interface ContentTypes<P extends boolean = true> {\n`;
         for (let schema of schemas) {
-            interfaceContentTypes += `  ${schema.pascalName}: ${schema.pascalName};\n`;
+            interfaceContentTypes += `  ${schema.pascalName}: ${schema.pascalName}<P>;\n`;
         }
 
         interfaceContentTypes += `};\n`;
 
         interfacesFileContent += interfaceContentTypes;
 
-        interfacesFileContent += `export type ContentType<T extends keyof ContentTypes> = ContentTypes[T];\n`;
+        interfacesFileContent += `export type ContentType<T extends keyof ContentTypes, P extends boolean = true> = ContentTypes<P>[T];\n`;
 
         interfacesFileContent += `
         export interface APIResponseMany<T extends keyof ContentTypes> {
@@ -94,10 +94,10 @@ export class InterfaceBuilder {
             `
         export interface APIRequestParams<T extends keyof ContentTypes> {
             populate?: any;
-            fields?: (keyof ContentType<T>)[];
+            fields?: (keyof ContentType<T, false>)[];
             locale?: string | string[];
             filters?: any;` +
-            'sort?: `${string & keyof ContentType<T>}:asc` | `${string & keyof ContentType<T>}:desc` | (`${string & keyof ContentType<T>}:asc` | `${string & keyof ContentType<T>}:desc`)[];' +
+            'sort?: `${string & keyof ContentType<T, false>}:asc` | `${string & keyof ContentType<T, false>}:desc` | (`${string & keyof ContentType<T, false>}:asc` | `${string & keyof ContentType<T, false>}:desc`)[];' +
             `pagination?: {
                 page?: number;
                 pageSize?: number;
@@ -139,7 +139,7 @@ export class InterfaceBuilder {
         const interfaceEnums: string[] = [];
         const interfaceDependencies: string[] = [];
 
-        let interfaceText = `export interface ${interfaceName} {\n`;
+        let interfaceText = `export interface ${interfaceName}<P extends boolean = true> {\n`;
         if (schemaInfo.source === SchemaSource.Api) {
             interfaceText += `  id?: number;\n`;
         }
@@ -176,9 +176,9 @@ export class InterfaceBuilder {
 
                 interfaceDependencies.push(propertyType);
                 const isArray = attributeValue.relation.endsWith('ToMany');
-                const bracketsIfArray = isArray ? '[] | number[]' : ' | number | null';
+                const bracketsIfArray = isArray ? '<P>[] : number[]' : '<P> | null : number | null';
 
-                propertyDefinition = `${indentation}${propertyName}${this.isOptional(attributeValue) ? '' : '?'}: ${propertyType}${bracketsIfArray};\n`;
+                propertyDefinition = `${indentation}${propertyName}${this.isOptional(attributeValue) ? '' : '?'}: P extends true ? ${propertyType}${bracketsIfArray};\n`;
             }
 
             // -------------------------------------------------
