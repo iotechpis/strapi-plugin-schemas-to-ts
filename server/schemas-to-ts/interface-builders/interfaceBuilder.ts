@@ -214,8 +214,8 @@ export class InterfaceBuilder {
                 propertyType = 'Media';
                 interfaceDependencies.push(propertyType);
 
-                const bracketsIfArray = attributeValue.multiple ? '[] | number[]' : ' | number | null';
-                propertyDefinition = `${indentation}${propertyName}${this.isOptional(attributeValue) ? '' : '?'}: ${propertyType}${bracketsIfArray};\n`;
+                const bracketsIfArray = attributeValue.multiple ? '<P>[] : number[]' : '<P> | null : number | null';
+                propertyDefinition = `${indentation}${propertyName}${this.isOptional(attributeValue) ? '' : '?'}: P extends true ? ${propertyType}${bracketsIfArray};\n`;
             }
 
             // -------------------------------------------------
