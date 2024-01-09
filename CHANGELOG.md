@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.6] - 2024-01-09
+### Fix
+ - (interfaceBuilder.ts): update propertyDefinition to correctly handle array types and optional properties in Media
+
 ## [1.1.5] - 2024-01-08
 ### Changed
  - The ContentTypes interfaces now accepts a generic parameter `P`(populate) which defaults to `true`. This allows for more flexibility when using the interface, as it can now be used with or without populating the relations. 
