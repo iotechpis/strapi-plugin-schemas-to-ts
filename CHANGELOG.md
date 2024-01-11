@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.2.0] - 2024-01-11
+### Fix
+ - (PluginConfig): Change the type to allow RegExp and string  
+### Maintenance  
+ - Update dependencies
+### Added  
+ - (interfaceBuilder.ts): Add an enum for ContentTypes UID's (ex: 'application::article.article')
+```typescript
+export enum ContentTypesUID {
+  Article = 'api::article.article',
+  Category = 'api::category.category',
+  Component = 'api::component.component',
+  Media = 'api::file.file',
+  Page = 'api::page.page',
+  Tag = 'api::tag.tag',
+  User = 'api::user.user',
+}
+```
+
 ## [1.1.6] - 2024-01-09
 ### Fix
  - (interfaceBuilder.ts): update propertyDefinition to correctly handle array types and optional properties in Media
