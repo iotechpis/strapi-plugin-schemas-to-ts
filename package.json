@@ -19,18 +19,18 @@
         "prepare": "yarn build && yarn prettier"
     },
     "dependencies": {
-        "@strapi/helper-plugin": "^4.15.4",
+        "@strapi/helper-plugin": "^4.17.0",
         "lodash": "^4.17.21",
         "pascal-case": "^3.1.2",
-        "prettier": "^3.1.0"
+        "prettier": "^3.1.1"
     },
     "devDependencies": {
         "@iotechpis/prettier": "^1.1.6",
-        "@strapi/strapi": "^4.15.4",
-        "@strapi/typescript-utils": "^4.15.4",
+        "@strapi/strapi": "^4.17.0",
+        "@strapi/typescript-utils": "^4.17.0",
         "@types/prettier": "^2.7.3",
         "rimraf": "^5.0.5",
-        "typescript": "5.3.2"
+        "typescript": "5.3.3"
     },
     "peerDependencies": {},
     "engines": {
