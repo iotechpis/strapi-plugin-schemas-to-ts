@@ -1,11 +1,10 @@
 import { PluginConfig } from '../models/pluginConfig';
-import { pluginName } from '../register';
 
 const config: PluginConfig = {
     acceptedNodeEnvs: ['development'],
     verboseLogs: false,
     alwaysAddEnumSuffix: false,
-    contentTypesToIgnore: ['plugin::upload.folder', 'plugin::i18n.locale'],
+    contentTypesToIgnore: ['plugin::upload.folder', 'plugin::i18n.locale', /plugin::content-releases\..*/, 'plugin::users-permissions.permission'],
     alwaysAddComponentSuffix: false,
     usePrettierIfAvailable: true,
 };
