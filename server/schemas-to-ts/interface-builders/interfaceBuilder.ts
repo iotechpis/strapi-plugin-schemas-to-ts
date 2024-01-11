@@ -68,6 +68,15 @@ export class InterfaceBuilder {
 
         interfacesFileContent += interfaceContentTypes;
 
+        let enumContentTypesUID = `export enum ContentTypesUID {\n`;
+        for (let schema of schemas) {
+            enumContentTypesUID += `  ${schema.pascalName} = '${schema.schema.uid}',\n`;
+        }
+
+        enumContentTypesUID += `};\n`;
+
+        interfacesFileContent += enumContentTypesUID;
+
         interfacesFileContent += `export type ContentType<T extends keyof ContentTypes, P extends boolean = true> = ContentTypes<P>[T];\n`;
 
         interfacesFileContent += `
